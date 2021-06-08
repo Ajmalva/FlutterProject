@@ -1,15 +1,18 @@
+import 'package:flutter_app0/model/photos_model.dart';
+import 'package:flutter_app0/screens/profile_page.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_app0/model/photos_model.dart';
-import 'widgets/top_bar.dart';
 import 'package:flutter_app0/env/keys.dart' as config;
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:hive/hive.dart';
+import 'widgets/top_bar.dart';
 
-class HomePage extends StatefulWidget {
+class HomepageScreen extends StatefulWidget {
   @override
-  _HomePageState createState() => _HomePageState();
+  _HomepageScreenState createState() => _HomepageScreenState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomepageScreenState extends State<HomepageScreen> {
   List<PhotosModel> _photosData = [];
 
   Future<void> _fetchPhotos() async {
@@ -21,12 +24,14 @@ class _HomePageState extends State<HomePage> {
     final _fetchData =
         await _dioInstance.get('https://api.unsplash.com/photos');
 
-    for (var _item in _fetchData.data) {
+    for (var _items in _fetchData.data) {
       setState(() {
         _photosData.add(
-            PhotosModel(id: _item['id'], imgURL: _item['urls']['regular']));
+            PhotosModel(id: _items['id'], imgURL: _items['urls']['regular']));
       });
     }
+
+    print("object");
   }
 
   @override
@@ -43,10 +48,14 @@ class _HomePageState extends State<HomePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              TopBar(
-                title: 'Ajmal VA',
-                subtitle: 'Developer',
-                color: Color(0xff0B3D2E),
+              ValueListenableBuilder(
+                valueListenable: Hive.box('profile').listenable(),
+                builder: (BuildContext context, Box value, Widget? child) =>
+                    TopBar(
+                  title: value.get('name'),
+                  subtitle: 'Developer',
+                  color: Color(0xff0B3D2E),
+                ),
               ),
               const SizedBox(height: 10),
               Text(
@@ -73,6 +82,12 @@ class _HomePageState extends State<HomePage> {
             ],
           ),
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.of(context).pushNamed(ProfileScreen.routeName);
+        },
+        child: Icon(Icons.edit),
       ),
     );
   }
