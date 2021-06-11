@@ -1,24 +1,11 @@
-import 'dart:io';
-
 import 'package:flutter_app0/screens/profile_page.dart';
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
-import 'package:path_provider/path_provider.dart';
+import 'env/hive_init.dart';
 import 'screens/home_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  Directory appDocDir = await getApplicationDocumentsDirectory();
-  String appDocPath = appDocDir.path;
-  Hive.init(appDocPath);
-  var boxs = await Hive.openBox('profile');
-
-  var box = Hive.box('profile');
-  box.put('name', 'Ajmal');
-
-  var name = box.get('name');
-
-  print('Name: $name');
+  await hiveInit();
   runApp(MyApp());
 }
 
